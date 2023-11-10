@@ -31,17 +31,17 @@ const OPERATORS: IOperator[] = [
 ]
 
 function App() {
-  const [numA, setNumA] = useState<number | null>(null)
-  const [numB, setNumB] = useState<number | null>(null)
+  const [numA, setNumA] = useState<number>(0)
+  const [numB, setNumB] = useState<number>(0)
   const [operator, setOperator] = useState<IOperator | null>(null)
 
   const handleNumberClick = useCallback(
     (num: number) => {
       if(operator){
-        setNumB(numB ? numB * 10 + num : num)
+        setNumB(numB * 10 + num)
       }
       else {
-        setNumA(numA ? numA * 10 + num : num)
+        setNumA(numA * 10 + num)
       }
     },
     [numA, numB, operator],
@@ -50,8 +50,13 @@ function App() {
   const handleOperatorClick = useCallback(
     (o: IOperator) => {
       if(numB || numB === 0){
-        setNumA( (operator as IOperator).handler(numA as number, numB) )
-        setNumB(null)
+        if(operator){
+          setNumA(operator!.handler(numA, numB) )
+        }
+        else {
+          setOperator(o)
+        }
+        setNumB(0)
       }
       setOperator(o)
     },
@@ -62,7 +67,7 @@ function App() {
     () => {
       if((numA || numA === 0) && (numB || numB === 0) && operator ){
         setNumA(operator.handler(numA, numB))
-        setNumB(null)
+        setNumB(0)
         setOperator(null)
       }
     }, [numA, numB, operator]
@@ -70,7 +75,7 @@ function App() {
 
   const screenValue = useMemo(() => {
     const numAValue = (numA || numA === 0) ? numA.toString() : ''
-    const numBValue = (numB || numB === 0) ? numB.toString() : ''
+    const numBValue = (numB) ? numB.toString() : ''
     const operatorValue = operator?.symbol || ''
     return `${numAValue} ${operatorValue} ${numBValue}` 
   }, [numB, numA, operator])
